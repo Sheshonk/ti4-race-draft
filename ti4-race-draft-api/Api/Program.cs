@@ -1,6 +1,8 @@
 using DomainObjects;
 using DomainObjects.Entities;
+using DomainObjects.Repositories;
 using Microsoft.EntityFrameworkCore;
+using ti4_race_draft_api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<TiContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TI4-Race-Draft")));
 
-//builder.Services.AddScoped<IDbRepository<Episode>, DbRepository<Episode>>();\
+builder.Services.AddScoped<IDbRepository<Game>, DbRepository<Game>>();
+builder.Services.AddScoped<IDbRepository<Player>, DbRepository<Player>>();
+builder.Services.AddScoped<IGameService, GameService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

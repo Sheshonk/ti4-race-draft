@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ti4_race_draft_api.Services;
 
 namespace ti4_race_draft_api.Controllers
 {
@@ -7,15 +8,17 @@ namespace ti4_race_draft_api.Controllers
     [ApiController]
     public class GameController : ControllerBase
     {
-        public GameController()
+        private readonly IGameService _gameService;
+        
+        public GameController(IGameService gameService)
         {
-
+            _gameService = gameService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(string[] names)
         {
-            return Ok();
+            return Ok(await _gameService.Create(names));
         }
     }
 }
