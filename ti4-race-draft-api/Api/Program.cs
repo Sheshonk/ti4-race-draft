@@ -18,6 +18,7 @@ builder.Services.AddScoped<IDbRepository<Group>, DbRepository<Group>>();
 builder.Services.AddScoped<IDbRepository<Player>, DbRepository<Player>>();
 builder.Services.AddScoped<IDbRepository<Race>, DbRepository<Race>>();
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
