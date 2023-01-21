@@ -14,7 +14,7 @@ namespace ti4_race_draft_api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Draft draft)
+        public async Task<IActionResult> Create(DraftPick draft)
         {
             //make sure races belong to player
             //make sure auth token belongs to player

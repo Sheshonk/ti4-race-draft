@@ -12,8 +12,10 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<TiContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TI4-Race-Draft")));
 
+builder.Services.AddScoped<IDbRepository<Draft>, DbRepository<Draft>>();
 builder.Services.AddScoped<IDbRepository<Game>, DbRepository<Game>>();
 builder.Services.AddScoped<IDbRepository<Player>, DbRepository<Player>>();
+builder.Services.AddScoped<IDbRepository<Race>, DbRepository<Race>>();
 builder.Services.AddScoped<IGameService, GameService>();
 
 builder.Services.AddEndpointsApiExplorer();
