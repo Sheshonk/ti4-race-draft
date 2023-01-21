@@ -7,5 +7,6 @@
         public DateTime UpdatedDate { get; set; }
 
         public Guid PublicId { get; set; }
+        //public int? GroupId { g}
     }
 }

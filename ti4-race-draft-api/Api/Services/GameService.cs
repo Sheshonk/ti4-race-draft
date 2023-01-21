@@ -19,7 +19,6 @@ namespace ti4_race_draft_api.Services
         {
             _gameRepo = gameRepo;
             _playerRepo = playerRepo;
-            _db = tiContext;
         }
 
         public async Task<Dict<Guid>> Create(string[] names)

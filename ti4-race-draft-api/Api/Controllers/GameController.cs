@@ -20,5 +20,11 @@ namespace ti4_race_draft_api.Controllers
         {
             return Ok(await _gameService.Create(names));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Get(Guid publicToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

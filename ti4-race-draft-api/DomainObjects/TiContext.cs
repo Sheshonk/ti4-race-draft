@@ -15,7 +15,10 @@ namespace DomainObjects
             builder.ApplyUtcDateTimeConverter();
         }
 
+        public DbSet<Draft> Drafts { get; set; }
         public DbSet<Game> Games { get; set; }
+        public DbSet<Group> Groups { get; set; }
         public DbSet<Player> Players { get; set; }
+        public DbSet<Race> Races { get; set; }
     }
 }
