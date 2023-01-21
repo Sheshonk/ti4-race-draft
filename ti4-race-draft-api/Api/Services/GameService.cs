@@ -9,6 +9,7 @@ namespace ti4_race_draft_api.Services
     public interface IGameService
     {
         Task<Dict<Guid>> Create(string[] name);
+        Task<GameDetail> Get(Guid publicId, Guid authToken);
     }
     
     public class GameService : IGameService
@@ -36,7 +37,7 @@ namespace ti4_race_draft_api.Services
 
             names = names.OrderBy(_ => (new Random()).Next()).ToArray();
             int firstPlayerId = -1;
-            for (int x = 0; x < names.Count(); x++)
+            for (int x = 0; x < names.Length; x++)
             {
                 var id = await _playerRepo.Create(new Player()
                 {
@@ -44,7 +45,7 @@ namespace ti4_race_draft_api.Services
                     DraftOrder = x,
                     GameId = game.Id,
                     IsAdmin = false,
-                    Name = names[x]
+                    Name = names[x],
                 });
 
                 if (x == 0)
@@ -56,13 +57,14 @@ namespace ti4_race_draft_api.Services
 
             var races = await _raceRepo.Search().Select(_ => _.Id).ToListAsync();
             races = races.OrderBy(_ => (new Random()).Next()).ToList();
-            for (int x = 0; x < races.Count(); x++)
+            for (int x = 0; x < races.Count; x++)
             {
                 await _draftRepo.Create(new Draft()
                 {
                     GameId = game.Id,
                     Order = x,
-                    RaceId = races[x]
+                    RaceId = races[x],
+                    SuperFaction = x == 0 ? true : false
                 });
             }
 
@@ -79,6 +81,53 @@ namespace ti4_race_draft_api.Services
             }
 
             return new Dict<Guid>() { Id = publicId };
+        }
+
+        public async Task<GameDetail> Get(Guid publicId, Guid authToken)
+        {
+            var game = _gameRepo.Search().Where(_ => _.PublicId == publicId).FirstOrDefault();
+            if (game == null)
+                return null;
+            var players = _playerRepo.Search().Where(_ => _.GameId == game.Id).OrderBy(_ => _.DraftOrder).ToList();
+            var races = _raceRepo.Search().Select(_ => new RaceDetail() { IconUrl = _.IconUrl, Id = _.Id, Name = _.Name, WikiUrl = _.WikiUrl}).ToList();
+            var groups = _groupRepo.Search().Where(_ => _.GameId == game.Id).ToList();
+            var drafts = _draftRepo.Search().Where(_ => _.GameId == game.Id).ToList();
+
+            int? authPlayerId = players.Where(_ => _.AuthToken == authToken).Select(_ => (int?)_.Id).FirstOrDefault();
+
+            return new GameDetail()
+            {
+                AuthPlayerId = authPlayerId,
+                Complete = game.Complete,
+                CurrentPlayerId = game.CurrentPlayerId,
+                Groups = groups.Select(groupp => new GroupDetail()
+                {
+                    Id = groupp.Id,
+                    Name = groupp.Name,
+                    Races = (
+                        from race in races
+                        join draft in drafts on race.Id equals draft.RaceId
+                        where draft.GroupId == groupp.Id
+                        select race
+                    ).ToList(),
+                    Winner = groupp.Winner
+                }).ToList(),
+                Hand = authPlayerId == null ? null : (
+                    from race in races
+                    join draft in drafts on race.Id equals draft.RaceId
+                    where draft.PlayerId == authPlayerId
+                        && draft.GroupId == null
+                    select race
+                ).ToList(),
+                Id = game.Id,
+                Players = players.Select(_ => new PlayerDetail { Id = _.Id, Name = _.Name, DraftOrder = _.DraftOrder }).ToList(),
+                SuperFaction = !game.Complete ? null : (
+                    from race in races
+                    join draft in drafts on race.Id equals draft.RaceId
+                    where draft.SuperFaction == true
+                    select race
+                ).FirstOrDefault()
+            };
         }
 
         private string[] GetAdjectives()

@@ -8,5 +8,6 @@
 
         public Guid PublicId { get; set; }
         public int? CurrentPlayerId { get; set; }
+        public bool Complete { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace DomainObjects.Entities
         public int? GroupId { get; set; }
         public int? PlayerId { get; set; }
         public int? RaceId { get; set; }
+        public bool SuperFaction { get; set; }
         public int Order { get; set; }
 
 

@@ -22,9 +22,14 @@ namespace ti4_race_draft_api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(Guid publicToken)
+        public async Task<IActionResult> Get(Guid publicId, Guid authToken)
         {
-            throw new NotImplementedException();
+            var game = await _gameService.Get(publicId, authToken);
+
+            if (game != null)
+                return Ok(game);
+            else
+                return NotFound();
         }
     }
 }

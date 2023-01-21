@@ -14,12 +14,14 @@ namespace ti4_race_draft_api.Services
     {
         private readonly IDbRepository<Draft> _draftRepo;
         private readonly IDbRepository<Game> _gameRepo;
+        private readonly IDbRepository<Group> _groupRepo;
         private readonly IDbRepository<Player> _playerRepo;
         
-        public DraftService(IDbRepository<Draft> draftRepo, IDbRepository<Game> gameRepo, IDbRepository<Player> playerRepo)
+        public DraftService(IDbRepository<Draft> draftRepo, IDbRepository<Game> gameRepo, IDbRepository<Group> groupRepo, IDbRepository<Player> playerRepo)
         {
             _draftRepo = draftRepo;
             _gameRepo = gameRepo;
+            _groupRepo = groupRepo;
             _playerRepo = playerRepo;
         }
         
@@ -27,6 +29,8 @@ namespace ti4_race_draft_api.Services
         {
             if (!(await _playerRepo.Search().AnyAsync(_ => _.Id == draft.PlayerId && _.AuthToken == draft.AuthToken)))
                 throw new AccessViolationException("auth token mismatch");
+            if (!(await _gameRepo.Search().AnyAsync(_ => _.Id == draft.GameId && _.CurrentPlayerId == draft.PlayerId)))
+                throw new AccessViolationException("not current player's turn to draft");
             if (!(await _draftRepo.Search().AnyAsync(_ => _.PlayerId == draft.PlayerId && _.GroupId == null && _.Id == draft.DraftId)))
                 throw new AccessViolationException("race not in player's hand");
 
@@ -34,18 +38,28 @@ namespace ti4_race_draft_api.Services
             pick.GroupId = draft.GroupId;
             await _draftRepo.Update(pick);
 
-            var newCard = await _draftRepo.Search().Where(_ => _.PlayerId == null).OrderBy(_ => _.Order).FirstOrDefaultAsync();
+            var game = await _gameRepo.Get(draft.GameId).FirstOrDefaultAsync();
+            var newCard = await _draftRepo.Search().Where(_ => _.PlayerId == null && _.SuperFaction == false).OrderBy(_ => _.Order).FirstOrDefaultAsync();
             if (newCard != null)
             {
                 newCard.PlayerId = draft.PlayerId;
                 await _draftRepo.Update(newCard);
-            }
 
-            var game = await _gameRepo.Get(draft.GameId).FirstOrDefaultAsync();
-            var players = await _playerRepo.Search().Where(_ => _.GameId == draft.GameId).OrderBy(_ => _.DraftOrder).ToListAsync();
-            var oldPlayer = players.Where(_ => _.Id == game.CurrentPlayerId).FirstOrDefault();
-            game.CurrentPlayerId = oldPlayer.DraftOrder == players.Count() - 1 ? players[0].Id : players.Where(_ => _.DraftOrder == oldPlayer.DraftOrder + 1).Select(_ => _.Id).FirstOrDefault();
-            await _gameRepo.Update(game);
+                var players = await _playerRepo.Search().Where(_ => _.GameId == draft.GameId).OrderBy(_ => _.DraftOrder).ToListAsync();
+                var oldPlayer = players.Where(_ => _.Id == game.CurrentPlayerId).FirstOrDefault();
+                game.CurrentPlayerId = oldPlayer.DraftOrder == players.Count - 1 ? players[0].Id : players.Where(_ => _.DraftOrder == oldPlayer.DraftOrder + 1).Select(_ => _.Id).FirstOrDefault();
+                await _gameRepo.Update(game);
+            }
+            else
+            {
+                game.Complete = true;
+                game.CurrentPlayerId = null;
+                await _gameRepo.Update(game);
+
+                var g = await _groupRepo.Get(draft.GroupId).FirstOrDefaultAsync();
+                g.Winner = true;
+                await _groupRepo.Update(g);
+            }
         }
     }
 }

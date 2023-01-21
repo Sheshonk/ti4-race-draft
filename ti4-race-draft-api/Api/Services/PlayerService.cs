@@ -36,7 +36,7 @@ namespace ti4_race_draft_api.Services
 
             if (!(await _draftRepo.Search().AnyAsync(_ => _.PlayerId == claim.PlayerId)))
             {
-                var drafts = _draftRepo.Search().Where(_ => _.PlayerId == null).OrderBy(_ => _.Order).Take(2).ToList();
+                var drafts = _draftRepo.Search().Where(_ => _.PlayerId == null && _.SuperFaction == false).OrderBy(_ => _.Order).Take(2).ToList();
                 foreach (var draft in drafts)
                 {
                     draft.PlayerId = claim.PlayerId;

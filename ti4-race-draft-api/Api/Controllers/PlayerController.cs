@@ -32,7 +32,7 @@ namespace ti4_race_draft_api.Controllers
             }
             catch (AccessViolationException ex)
             {
-                return Unauthorized();
+                return Unauthorized(ex.Message);
             }
         }
     }

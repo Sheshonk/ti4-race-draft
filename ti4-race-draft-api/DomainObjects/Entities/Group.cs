@@ -14,6 +14,7 @@ namespace DomainObjects.Entities
 
         public string Name { get; set; }
         public int GameId { get; set; }
+        public bool Winner { get; set; }
 
         public Game Game { get; set; }
     }
