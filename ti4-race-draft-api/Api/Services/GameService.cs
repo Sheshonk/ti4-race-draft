@@ -32,20 +32,27 @@ namespace ti4_race_draft_api.Services
         {
             //TODO: bulk inserts
             var publicId = Guid.NewGuid();
-            var gameId = await _gameRepo.Create(new Game() { PublicId = publicId });
+            var game = await _gameRepo.CreateO(new Game() { PublicId = publicId });
 
             names = names.OrderBy(_ => (new Random()).Next()).ToArray();
+            int firstPlayerId = -1;
             for (int x = 0; x < names.Count(); x++)
             {
-                await _playerRepo.Create(new Player()
+                var id = await _playerRepo.Create(new Player()
                 {
                     AuthToken = null,
                     DraftOrder = x,
-                    GameId = gameId,
+                    GameId = game.Id,
                     IsAdmin = false,
                     Name = names[x]
                 });
+
+                if (x == 0)
+                    firstPlayerId = id;
             }
+
+            game.CurrentPlayerId = firstPlayerId;
+            await _gameRepo.Update(game);
 
             var races = await _raceRepo.Search().Select(_ => _.Id).ToListAsync();
             races = races.OrderBy(_ => (new Random()).Next()).ToList();
@@ -53,7 +60,7 @@ namespace ti4_race_draft_api.Services
             {
                 await _draftRepo.Create(new Draft()
                 {
-                    GameId = gameId,
+                    GameId = game.Id,
                     Order = x,
                     RaceId = races[x]
                 });
@@ -66,7 +73,7 @@ namespace ti4_race_draft_api.Services
             {
                 await _groupRepo.Create(new Group()
                 {
-                    GameId = gameId,
+                    GameId = game.Id,
                     Name = $"{adjectives[x][0].ToString().ToUpper()}{adjectives[x].AsSpan(1)} {nouns[x][0].ToString().ToUpper()}{nouns[x].AsSpan(1)}"
                 });
             }

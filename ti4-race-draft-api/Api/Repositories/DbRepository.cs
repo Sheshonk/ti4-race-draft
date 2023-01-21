@@ -7,7 +7,7 @@ namespace DomainObjects.Repositories
     public interface IDbRepository<TEntity> where TEntity : class
     {
         Task<int> Create(TEntity entity);
-        Task Delete(int id);
+        Task<TEntity> CreateO(TEntity entity);
         IQueryable<TEntity> Get(int id);
         IQueryable<TEntity> Search();
         Task Update(TEntity entity);
@@ -32,9 +32,14 @@ namespace DomainObjects.Repositories
             return entity.Id;
         }
 
-        public async Task Delete(int id)
+        public async Task<TEntity> CreateO(TEntity entity)
         {
-            //await _db.Set<TEntity>().Where(_ => _.Id == id).DeleteFromQueryAsync();
+            entity.CreatedDate = DateTime.UtcNow;
+            entity.UpdatedDate = DateTime.UtcNow;
+
+            _db.Set<TEntity>().Add(entity);
+            await _db.SaveChangesAsync();
+            return entity;
         }
 
         public IQueryable<TEntity> Get(int id)

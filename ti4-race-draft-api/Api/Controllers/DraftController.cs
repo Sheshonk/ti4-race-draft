@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ti4_race_draft_api.DTO;
+using ti4_race_draft_api.Services;
 
 namespace ti4_race_draft_api.Controllers
 {
@@ -8,17 +9,25 @@ namespace ti4_race_draft_api.Controllers
     [ApiController]
     public class DraftController : ControllerBase
     {
-        public DraftController()
-        {
+        private readonly IDraftService _draftService;
 
+        public DraftController(IDraftService draftService)
+        {
+            _draftService = draftService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(DraftPick draft)
         {
-            //make sure races belong to player
-            //make sure auth token belongs to player
-            throw new NotImplementedException();
+            try
+            {
+                await _draftService.Create(draft);
+                return Ok();
+            }
+            catch (AccessViolationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
     }
 }

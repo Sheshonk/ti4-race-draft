@@ -13,10 +13,12 @@ namespace ti4_race_draft_api.Services
 
     public class PlayerService : IPlayerService
     {
+        private readonly IDbRepository<Draft> _draftRepo;
         private readonly IDbRepository<Player> _playerRepo;
         
-        public PlayerService(IDbRepository<Player> playerRepo)
+        public PlayerService(IDbRepository<Draft> draftRepo, IDbRepository<Player> playerRepo)
         {
+            _draftRepo = draftRepo;
             _playerRepo = playerRepo;
         }
         
@@ -31,6 +33,16 @@ namespace ti4_race_draft_api.Services
             player.AuthToken = token;
             player.IsAdmin = !(await _playerRepo.Search().AnyAsync(_ => _.GameId == claim.GameId && _.IsAdmin == true));
             await _playerRepo.Update(player);
+
+            if (!(await _draftRepo.Search().AnyAsync(_ => _.PlayerId == claim.PlayerId)))
+            {
+                var drafts = _draftRepo.Search().Where(_ => _.PlayerId == null).OrderBy(_ => _.Order).Take(2).ToList();
+                foreach (var draft in drafts)
+                {
+                    draft.PlayerId = claim.PlayerId;
+                    await _draftRepo.Update(draft);
+                }
+            }
 
             return token;
         }

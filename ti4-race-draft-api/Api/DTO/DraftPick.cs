@@ -2,8 +2,10 @@
 {
     public class DraftPick
     {
-        public int RaceId { get; set; }
+        public int DraftId { get; set; }
+        public int GameId { get; set; }
         public int GroupId { get; set; }
+        public int PlayerId { get; set; }
         public Guid AuthToken { get; set; }
     }
 }
