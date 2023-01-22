@@ -12,7 +12,6 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <h1>Baby's first app</h1>
       <Routes>
         <Route path="/" element={<Setup />} />
         <Route path="/draft/*" element={<Draft />} />
