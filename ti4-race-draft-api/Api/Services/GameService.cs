@@ -98,6 +98,7 @@ namespace ti4_race_draft_api.Services
             return new GameDetail()
             {
                 AuthPlayerId = authPlayerId,
+                AdminId = players.Where(_ => _.IsAdmin == true).Select(_ => _.Id).FirstOrDefault(),
                 Complete = game.Complete,
                 CurrentPlayer = players.Where(_ => _.Id == game.CurrentPlayerId).Select(_ => new PlayerDetail { Id = _.Id, Name = _.Name, DraftOrder = _.DraftOrder, Claimable = _.AuthToken == null ? true : false }).FirstOrDefault(),
                 Groups = groups.Select(groupp => new GroupDetail()
@@ -117,7 +118,14 @@ namespace ti4_race_draft_api.Services
                     join draft in drafts on race.Id equals draft.RaceId
                     where draft.PlayerId == authPlayerId
                         && draft.GroupId == null
-                    select race
+                    select new RaceDetail()
+                    {
+                        DraftId = draft.Id,
+                        IconUrl = race.IconUrl,
+                        Id = race.Id,
+                        Name = race.Name,
+                        WikiUrl = race.WikiUrl
+                    }
                 ).ToList(),
                 Id = game.Id,
                 Players = players.Select(_ => new PlayerDetail { Id = _.Id, Name = _.Name, DraftOrder = _.DraftOrder, Claimable = _.AuthToken == null ? true : false }).ToList(),

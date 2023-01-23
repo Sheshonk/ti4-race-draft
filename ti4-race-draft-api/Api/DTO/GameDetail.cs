@@ -11,6 +11,7 @@
 
         public int Id { get; set; }
         public int? AuthPlayerId { get; set; }
+        public int? AdminId { get; set; }
         public PlayerDetail CurrentPlayer { get; set; }
         public RaceDetail SuperFaction { get; set; }
         public bool Complete { get; set; }

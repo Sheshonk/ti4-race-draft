@@ -1,12 +1,15 @@
+import { Group } from './Group';
 import { Player } from './Player';
+import { Race } from './Race';
 
 export type Game = {
     id: number,
     authPlayerId: number,
+    adminId: number,
     currentPlayer: Player,
-    superFaction: null,
+    superFaction: Race,
     complete: boolean,
     players: Player[],
-    hand: null,
-    groups: null
+    hand: Race[],
+    groups: Group[]
 };

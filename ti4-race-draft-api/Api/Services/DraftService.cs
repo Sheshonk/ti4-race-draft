@@ -39,11 +39,14 @@ namespace ti4_race_draft_api.Services
             await _draftRepo.Update(pick);
 
             var game = await _gameRepo.Get(draft.GameId).FirstOrDefaultAsync();
-            var newCard = await _draftRepo.Search().Where(_ => _.PlayerId == null && _.SuperFaction == false).OrderBy(_ => _.Order).FirstOrDefaultAsync();
-            if (newCard != null)
+            if (_draftRepo.Search().Any(_ => _.GameId == draft.GameId && _.SuperFaction == false && _.GroupId == null))
             {
-                newCard.PlayerId = draft.PlayerId;
-                await _draftRepo.Update(newCard);
+                var newCard = await _draftRepo.Search().Where(_ => _.PlayerId == null && _.SuperFaction == false).OrderBy(_ => _.Order).FirstOrDefaultAsync();
+                if (newCard != null)
+                {
+                    newCard.PlayerId = draft.PlayerId;
+                    await _draftRepo.Update(newCard);
+                }
 
                 var players = await _playerRepo.Search().Where(_ => _.GameId == draft.GameId).OrderBy(_ => _.DraftOrder).ToListAsync();
                 var oldPlayer = players.Where(_ => _.Id == game.CurrentPlayerId).FirstOrDefault();
@@ -56,9 +59,10 @@ namespace ti4_race_draft_api.Services
                 game.CurrentPlayerId = null;
                 await _gameRepo.Update(game);
 
-                var g = await _groupRepo.Get(draft.GroupId).FirstOrDefaultAsync();
-                g.Winner = true;
-                await _groupRepo.Update(g);
+                var groups = await _groupRepo.Search().Where(_ => _.GameId == draft.GameId).ToListAsync();
+                groups = groups.OrderBy(_ => (new Random()).Next()).ToList();
+                groups[0].Winner = true;
+                await _groupRepo.Update(groups[0]);
             }
         }
     }

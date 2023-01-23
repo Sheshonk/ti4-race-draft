@@ -1,6 +1,41 @@
 //const hostname = process.env.
 const hostname = "https://localhost:7179/api";
 
+export const CreateDraft = (
+    draftId: number,
+    gameId: number,
+    groupId: number,
+    playerId: number,
+    authToken: string
+) => {
+    let body = {
+        "draftId": draftId,
+        "gameId": gameId,
+        "groupId": groupId,
+        "playerId": playerId,
+        "authToken": authToken
+    };
+    console.log(body);
+
+    return fetch(
+        `${hostname}/Draft`,
+        {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(body)
+        }
+    ).then(() => {
+        return null;
+    })
+    .catch((error) => {
+        console.error(error);
+        throw error;
+    })
+}
+
 export const CreateGame = (
     names: string[]
 ) => {
@@ -74,10 +109,7 @@ export const DeletePlayer = (
             method: 'DELETE',
             body: JSON.stringify(body)
         }
-    ).then((response) => response.json())
-    .then((data) => {
-        return data;
-    })
+    ).then((response) => { return null})
     .catch((error) => {
         console.error(error);
         throw error;
