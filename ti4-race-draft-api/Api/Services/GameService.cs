@@ -99,7 +99,7 @@ namespace ti4_race_draft_api.Services
             {
                 AuthPlayerId = authPlayerId,
                 Complete = game.Complete,
-                CurrentPlayerId = game.CurrentPlayerId,
+                CurrentPlayer = players.Where(_ => _.Id == game.CurrentPlayerId).Select(_ => new PlayerDetail { Id = _.Id, Name = _.Name, DraftOrder = _.DraftOrder, Claimable = _.AuthToken == null ? true : false }).FirstOrDefault(),
                 Groups = groups.Select(groupp => new GroupDetail()
                 {
                     Id = groupp.Id,
@@ -120,7 +120,7 @@ namespace ti4_race_draft_api.Services
                     select race
                 ).ToList(),
                 Id = game.Id,
-                Players = players.Select(_ => new PlayerDetail { Id = _.Id, Name = _.Name, DraftOrder = _.DraftOrder }).ToList(),
+                Players = players.Select(_ => new PlayerDetail { Id = _.Id, Name = _.Name, DraftOrder = _.DraftOrder, Claimable = _.AuthToken == null ? true : false }).ToList(),
                 SuperFaction = !game.Complete ? null : (
                     from race in races
                     join draft in drafts on race.Id equals draft.RaceId
