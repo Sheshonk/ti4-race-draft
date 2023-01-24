@@ -1,5 +1,6 @@
 //const hostname = process.env.
-const hostname = "https://localhost:7179/api";
+//const hostname = "https://localhost:7179/api";
+const hostname = "http://www.sheshonk.com:9012/api";
 
 export const CreateDraft = (
     draftId: number,
@@ -15,7 +16,6 @@ export const CreateDraft = (
         "playerId": playerId,
         "authToken": authToken
     };
-    console.log(body);
 
     return fetch(
         `${hostname}/Draft`,

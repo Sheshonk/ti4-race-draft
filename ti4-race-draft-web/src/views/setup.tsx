@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CreateGame } from '../services/api';
 import { Dict } from '../types/Dict';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +20,11 @@ export const Setup = () => {
             navigate(`/draft/${data.id}`);
         });
     }
+
+    useEffect(() => {
+        //TODO: hackkk
+        navigate(`/draft/a814741c-6de8-4e5b-8580-d9fea908f5c2`);
+    }, []);
 
     return (
         <div className="flex items-center justify-center h-screen bg-slate-100">
