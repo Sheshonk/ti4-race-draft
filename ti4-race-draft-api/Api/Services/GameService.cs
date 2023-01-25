@@ -101,7 +101,7 @@ namespace ti4_race_draft_api.Services
                 AdminId = players.Where(_ => _.IsAdmin == true).Select(_ => _.Id).FirstOrDefault(),
                 Complete = game.Complete,
                 CurrentPlayer = players.Where(_ => _.Id == game.CurrentPlayerId).Select(_ => new PlayerDetail { Id = _.Id, Name = _.Name, DraftOrder = _.DraftOrder, Claimable = _.AuthToken == null ? true : false }).FirstOrDefault(),
-                Groups = groups.Select(groupp => new GroupDetail()
+                Groups = groups.OrderBy(_ => _.UpdatedDate).Select(groupp => new GroupDetail()
                 {
                     Id = groupp.Id,
                     Name = groupp.Name,
